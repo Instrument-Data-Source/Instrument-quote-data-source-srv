@@ -15,10 +15,11 @@ jobs:
       postgressrv:
         image: postgres
         ports:
-          - 5433:5432
+          - 5432:5432
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: GitHubActions
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
     steps:
@@ -31,5 +32,5 @@ jobs:
       - name: Run tests
         run: dotnet test ./Instrument.Quote.Source.Srv.sln --configuration Release --verbosity m --no-restore
         env:
-          TestENV_ConnectionStrings__DefaultConnection: "Host=postgressrv;Port=5433;Database=GitHubActions;Username=postgres;Password=postgres"
+          TestENV_ConnectionStrings__DefaultConnection: "Host=postgressrv;Port=5432;Database=GitHubActions;Username=postgres;Password=postgres"
 
