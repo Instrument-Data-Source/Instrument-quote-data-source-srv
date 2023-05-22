@@ -9,9 +9,10 @@ on:
 jobs:
   testing:
     runs-on: ubuntu-latest
-    
+    container: mcr.microsoft.com/dotnet/core/sdk:7.0
+
     services:
-      db:
+      postgressrv:
         image: postgres
         ports:
           - 5433:5432
@@ -23,10 +24,6 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
-      - name: Setup .NET Core
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: '7.0.x' 
       - name: Install dependencies
         run: dotnet restore
       - name: Build
@@ -34,5 +31,5 @@ jobs:
       - name: Run tests
         run: dotnet test ./Instrument.Quote.Source.Srv.sln --configuration Release --verbosity m --no-restore
         env:
-          TestENV_ConnectionStrings__DefaultConnection: "Host=localhost;Port=5433;Database=GitHubActions;Username=postgres;Password=postgres"
+          TestENV_ConnectionStrings__DefaultConnection: "Host=postgressrv;Port=5433;Database=GitHubActions;Username=postgres;Password=postgres"
 
