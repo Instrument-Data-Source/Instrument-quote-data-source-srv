@@ -18,7 +18,8 @@ public abstract class BaseTest : IDisposable
   private static IServiceProvider BuildServiceProvider(string dbSuffix, ITestOutputHelper output)
   {
     var _configurationBuilder = new ConfigurationBuilder();
-    _configurationBuilder.AddJsonFile("./appsettings.test.json");
+    _configurationBuilder.AddJsonFile("./appsettings.test.json")
+                         .AddEnvironmentVariables("TestENV_");
 
     ServiceCollection sc = new ServiceCollection();
     sc.AddSingleton<IConfiguration>(_configurationBuilder.Build());

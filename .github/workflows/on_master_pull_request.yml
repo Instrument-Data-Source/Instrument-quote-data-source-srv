@@ -2,32 +2,37 @@ name: Project Unit tests
 
 on:
   push:
-    branches: [ workflow ]
+    branches: [ workflow, AddingDbToWf ]
   pull_request:
     branches: [ master ]
 
 jobs:
   testing:
     runs-on: ubuntu-latest
-    container: mcr.microsoft.com/devcontainers/dotnet:0-7.0
     
     services:
       db:
-        image: postgres:14.3
-        env:
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_USER: postgres
-          POSTGRES_DB: postgres
+        image: postgres
         ports:
-          - 5432:5432
-        options: 
-          --health-cmd pg_isready 
-          --health-interval 10s 
-          --health-timeout 5s 
-          --health-retries 3
+          - 5433:5432
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '7.0.x' 
+      - name: Install dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
       - name: Run tests
-        run: dotnet test ./Instrument.Quote.Source.Srv.sln --configuration Release
+        run: dotnet test ./Instrument.Quote.Source.Srv.sln --configuration Release --verbosity m --no-restore
+        env:
+          TestENV_ConnectionStrings__DefaultConnection: "Host=localhost;Port=5433;Database=GitHubActions;Username=postgres;Password=postgres"
+
